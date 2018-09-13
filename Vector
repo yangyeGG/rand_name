@@ -1,0 +1,206 @@
+/*************************************************************************
+    > File Name: Vector.cpp
+    > Author: yy
+    > Mail: yy@ityy520.com 
+    > Created Time: Wed 12 Sep 2018 07:05:13 PM CST
+ ************************************************************************/
+
+#ifndef _VECTOR_H_
+#define _VECTOR_H_
+
+#include<iostream>
+#include<cstring>
+template<typename yy>
+class Vector
+{
+	private:
+		yy* buff;
+		int len; //当前长度
+		int cap; //当前容量
+
+		enum {SIZE = 50};
+	public:
+		Vector()
+		{
+			len = 0;
+			cap = 100;
+			buff = new yy[cap];
+		}
+		~Vector()
+		{
+			delete []buff;
+			len = 0;
+			cap = 0;
+		}
+//尾插
+		void push_back(const yy& data)
+		{
+			if(len == cap)
+			{
+				//扩容
+				cap += SIZE;
+				yy* p =new yy[cap];
+				memcpy(p,buff,len * sizeof(yy));
+				delete []buff;
+				buff = p;
+			}
+			buff[len++]=data;
+		}
+//头插
+		void push_front(const yy& data)
+		{
+			if(len == cap)
+			{
+				cap += SIZE;
+				yy* p =new yy[cap];
+				memcpy(p,buff,len * sizeof(yy));
+				delete []buff;
+				buff = p;
+				
+			}
+			int i;
+			for(i=len-1;i >= 0 ;--i)
+			{
+				buff[i+1]=buff[i];
+			}
+			buff[0] = data;
+			++len;
+		}
+//中插
+		void insert(int pos,const yy& data)
+		{
+			if(pos > len) pos = len;
+			if(pos < 0) pos = 0;
+
+			if(len == cap)
+			{
+				cap += SIZE;
+				yy* p =new yy[cap];
+				memcpy(p,buff,len * sizeof(yy));
+				delete []buff;
+				buff = p;
+			}
+			int i;
+			for(i=len-1;i >= pos ;--i)
+			{
+				buff[i+1]=buff[i];
+			}
+			buff[pos] = data;
+			++len;
+		}
+
+		//清空
+		void clear(void)
+		{
+			len = 0;
+		}
+
+		//删除
+		bool remove(const yy& data)
+		{
+			if(cap > len*3)
+			{
+				//减容
+				cap = len*2;
+				yy* p = new yy[cap];
+				memcpy(p,buff,len * sizeof(yy));
+				delete []buff;
+				buff = p;
+			}
+			int i;
+			for(i=0;i<len;++i)
+			{
+				if(buff[i]==data) break;
+			}
+
+			if(i==len) return false;
+
+			for(;i < len-1;++i)
+			{
+				buff[i] = buff[i+1];
+			}
+			--len;
+		}
+		//随机访问
+		yy& operator[](int i) const
+		{
+			if(i<0 || i >= len) throw 1;
+			return buff[i];
+		}
+		//查找
+		yy& find(const yy& data) const
+		{
+			int i;
+			for(i=0;i<len;++i)
+			{
+				if(buff[i]==data) return buff[i];
+			}
+
+			throw 2;
+		}
+
+		//判空
+		bool empty(void) const
+		{
+			return !len;
+		}
+
+		//获取长度
+		int size(void) const
+		{
+			return len;
+		}
+
+	private:	//排序
+		void Qsort(yy* buff,int n,bool(*cmp)(const yy&,const yy&))
+		{
+			int i=0,j=n-1;
+			yy k ;
+			k =buff[i];
+			if(n<2) return;
+			while(i!=j)
+			{
+				while(i!=j && cmp(buff[j],k)) --j;
+				  buff[i]=buff[j];
+				while(i!=j && cmp(k,buff[i])) ++i;
+				  buff[j]=buff[i];
+			}
+			buff[i]= k;
+			Qsort(buff,i,cmp);
+			Qsort(buff+i+1,n-i-1,cmp);
+			
+		}
+	public:	
+		void Qsort(bool(*cmp)(const yy&,const yy&))
+		{
+			Qsort(buff,len,cmp);
+		}
+
+
+		//逆序
+		void reverse(void)
+		{
+			int i;
+			yy temp;
+			for(i=0;i<len/2;i++)
+			{
+				temp = buff[i];
+				buff[i]=buff[len-i-1];
+				buff[len-i-1]=temp;
+			}
+		}
+
+		//顺序表连接操作
+		Vector operator+(const Vector& v)
+		{
+			Vector temp;
+			delete []temp.buff;
+			temp.cap = this -> size()+v.size();
+			temp.len=temp.cap;
+			temp.buff = new yy[temp.cap];
+
+			memcpy(temp,this->buff,this->len*sizeof(yy));
+			memcpy(temp+len,v.buff,v.len*sizeof(yy));
+		}
+};
+#endif
